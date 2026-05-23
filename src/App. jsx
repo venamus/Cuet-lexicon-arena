@@ -1,0 +1,163 @@
+import React, { useState, useEffect } from "react";
+
+export default function CUETVocabArena() {
+  const vocabData = [
+    {
+      word: "Taciturn",
+      meaning: "Reserved in speech",
+      options: ["Reserved in speech", "Excessively talkative", "Cruel", "Wise"],
+      difficulty: "Easy",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Morose",
+      meaning: "Gloomy or ill-tempered",
+      options: ["Cheerful", "Gloomy or ill-tempered", "Wise", "Fearless"],
+      difficulty: "Easy",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Cogent",
+      meaning: "Logical and convincing",
+      options: ["Confusing", "Logical and convincing", "Childish", "Weak"],
+      difficulty: "Medium",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Obsequious",
+      meaning: "Excessively eager to please",
+      options: ["Excessively eager to please", "Brave", "Noisy", "Humble"],
+      difficulty: "Hard",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Lucid",
+      meaning: "Clear and easy to understand",
+      options: ["Clear and easy to understand", "Confusing", "Ancient", "Aggressive"],
+      difficulty: "Medium",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Mellifluous",
+      meaning: "Sweet sounding",
+      options: ["Sweet sounding", "Harsh", "Aggressive", "Cowardly"],
+      difficulty: "Hard",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Sagacious",
+      meaning: "Wise and intelligent",
+      options: ["Wise and intelligent", "Foolish", "Loud", "Weak"],
+      difficulty: "Hard",
+      grammar: false,
+      category: "Vocabulary",
+    },
+    {
+      word: "Grammar Check",
+      meaning: "Choose correct sentence",
+      options: [
+        "He do not like coffee.",
+        "He does not likes coffee.",
+        "He does not like coffee.",
+        "He not like coffee.",
+      ],
+      difficulty: "Easy",
+      grammar: true,
+      category: "Grammar",
+    },
+  ];
+
+  const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+  const [questions, setQuestions] = useState(shuffle(vocabData));
+  const [current, setCurrent] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [timer, setTimer] = useState(20);
+  const [darkMode, setDarkMode] = useState(true);
+
+  const q = questions[current % questions.length];
+  const correct = q.options[0];
+  const options = shuffle(q.options);
+
+  useEffect(() => {
+    if (showAnswer) return;
+
+    const interval = setInterval(() => {
+      setTimer((t) => {
+        if (t === 1) {
+          handleAnswer(null);
+          return 20;
+        }
+        return t - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [current, showAnswer]);
+
+  const handleAnswer = (opt) => {
+    setSelected(opt);
+    setShowAnswer(true);
+    if (opt === correct) setScore((s) => s + 1);
+  };
+
+  const next = () => {
+    setCurrent((c) => c + 1);
+    setSelected(null);
+    setShowAnswer(false);
+    setTimer(20);
+  };
+
+  return (
+    <div className={`${darkMode ? "bg-black text-white" : "bg-white text-black"} min-h-screen p-4`}>
+      <div className="max-w-md mx-auto">
+
+        <div className="flex justify-between mb-4">
+          <h1 className="font-bold text-xl">CUET Lexicon Arena</h1>
+          <button onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? "Light" : "Dark"}
+          </button>
+        </div>
+
+        <div className="border p-4 rounded-xl">
+          <h2 className="text-lg font-semibold">{q.word}</h2>
+
+          <div className="space-y-2 mt-3">
+            {options.map((o, i) => (
+              <button
+                key={i}
+                onClick={() => handleAnswer(o)}
+                disabled={showAnswer}
+                className={`w-full border p-2 rounded ${
+                  showAnswer && o === correct ? "bg-green-600" : ""
+                }`}
+              >
+                {o}
+              </button>
+            ))}
+          </div>
+
+          {showAnswer && (
+            <button onClick={next} className="mt-3 w-full border p-2">
+              Next Question
+            </button>
+          )}
+        </div>
+
+        <div className="mt-4">
+          <p>Score: {score}</p>
+          <p>Time: {timer}s</p>
+        </div>
+
+      </div>
+    </div>
+  );
+      }
